@@ -5,24 +5,27 @@ import tkinter as tk
 
 import numpy as np
 from PIL import Image, ImageTk
+import random
 
 LARGE_FONT = ("Verdana", 12)
+
 
 class SeaofBTCapp(tk.Tk):
 
     def __init__(self, *args, **kwargs):
         tk.Tk.__init__(self, *args, **kwargs)
+        self.geometry('1050x600')  # set size of the main window to 300x300 pixels
         container = tk.Frame(self, background="black")
 
         container.pack(side="top", fill="both", expand=True)
 
         self.frames = {}
 
-        for F in (StartPage, PageOne, PageTwo):
+        for F in (StartPage, PageOne, PageTwo, PageThree, PageFour, PageFive, PageSix):
             frame = F(container, self)
 
             self.frames[F] = frame
-            frame.config(bg='black') # change the background color to black
+            frame.config(bg='black')  # change the background color to black
             frame.grid(row=3, column=3, sticky="nsew")
 
         self.show_frame(StartPage)
@@ -39,13 +42,84 @@ class StartPage(tk.Frame):
         label = tk.Label(self, text="Start Page", font=LARGE_FONT)
         label.pack(pady=10, padx=10)
 
-        button = tk.Button(self, text="Visit Page 1",
-                           command=lambda: controller.show_frame(PageOne))
-        button.pack()
 
-        button2 = tk.Button(self, text="Visit Page 2",
-                            command=lambda: controller.show_frame(PageTwo))
-        button2.pack()
+        b1 = tk.Button(self, text='visit Page 1',command=lambda: controller.show_frame(PageOne))
+        b1.pack()
+        b2 = tk.Button(self, text='visit Page 2', command=lambda: controller.show_frame(PageTwo))
+        b2.pack()
+        b3 = tk.Button(self, text='visit Page 3', command=lambda: controller.show_frame(PageThree))
+        b3.pack()
+        b4 = tk.Button(self, text='visit Page 4', command=lambda: controller.show_frame(PageFour))
+        b4.pack()
+        b5 = tk.Button(self, text='visit Page 5', command=lambda: controller.show_frame(PageFive))
+        b5.pack()
+        b6 = tk.Button(self, text='visit Page 6', command=lambda: controller.show_frame(PageSix))
+        b6.pack()
+
+def transition(scales, controller, page):
+    if scales != None:
+        print(scales[0].get(), scales[1].get(), scales[2].get())
+    controller.show_frame(page)
+
+def agree_with(self1, controller, page, n = 2):
+    '''creating agree screen'''
+
+    image = Image.open('robots_finshed_talking' + '.png')
+    photo = ImageTk.PhotoImage(image)
+    label = tk.Label(self1, image=photo, bg='black')
+    label.image = photo  # keep a reference!
+    label.grid(row=n, columnspan=10, sticky='e')
+
+    image = Image.open('agree' + '.png')
+    photo = ImageTk.PhotoImage(image)
+    label = tk.Label(self1, image=photo, bg='black')
+    label.image = photo  # keep a reference!
+    label.grid(row=n+1, columnspan=10, sticky='e', pady = 10)
+
+    image = Image.open('red' + '.png')
+    photo = ImageTk.PhotoImage(image)
+    clr = '#%02x%02x%02x' % (255, 80, 80)
+    red_button = tk.Button(self1, image=photo, bg = clr,
+                           command=lambda: controller.show_frame(page))
+    red_button.image = photo
+    red_button.grid(row=n + 2, column=1, pady = 30)
+
+    image = Image.open('blue' + '.png')
+    photo = ImageTk.PhotoImage(image)
+    clr = '#%02x%02x%02x' % (47, 85, 151)
+    blue_button = tk.Button(self1, image=photo, bg = clr,
+                            command=lambda: controller.show_frame(page))
+    blue_button.image = photo
+    blue_button.grid(row=n + 2, column=8, pady = 30)
+
+def pleas_rate(self, suspects):
+    '''creating rating options'''
+
+    ### randomize the order that the rating options are presented
+    random.shuffle(suspects)
+
+    scales = []
+    # todo: change scales dictionary with the suspects as keys --> to know which prob is which (when the order is random)
+
+    for i, photo in enumerate(suspects):
+        scales.append(
+            tk.Scale(self, from_=0, to=100, orient='horizontal', resolution=10, length=350, bg='black', fg='white'))
+
+        scales[-1].config(highlightthickness=0)
+        scales[-1].grid(row=i + 2, column=0, columnspan=9, padx=10, pady=20, sticky='n')
+
+        image = Image.open('suspect_' + photo + '.png')
+        photo = ImageTk.PhotoImage(image)
+        label = tk.Label(self, image=photo, bg='black')
+        label.image = photo  # keep a reference!
+        label.grid(row=i + 2, column=9, sticky='e')
+
+    return scales, i + 2
+
+def next_button(self, scales, controller, page, i):
+    button1 = tk.Button(self, text="<--", width=20,
+                        command=lambda: transition(scales, controller,page))
+    button1.grid(row=i + 1, column=1, columnspan=2)
 
 
 class PageOne(tk.Frame):
@@ -53,67 +127,139 @@ class PageOne(tk.Frame):
     def __init__(self, parent, controller):
         tk.Frame.__init__(self, parent)
 
-        # image = Image.open('red_nao.jpg')
-        image = Image.open('red_nao_2.png')
+        image = Image.open('story_1' + '.png')
         photo = ImageTk.PhotoImage(image)
-
-        image = Image.open('red_nao_1.jpg')
-        photo1 = ImageTk.PhotoImage(image)
-
-
-        # photo = tk.PhotoImage(file ='red_nao_2.png')
-        # photo = tk.PhotoImage(file ='nao_robot_2.gif')
-
-        label = tk.Label(self, image = photo)
+        label = tk.Label(self, image=photo, bg='black')
         label.image = photo  # keep a reference!
-        label.grid(row = 0, column = 0)
+        label.grid(row=0, columnspan=10, sticky='e')
 
-        label = tk.Label(self, image = photo1)
-        label.image = photo1  # keep a reference!
-        label.grid(row = 0, column = 1)
+        image = Image.open('rate' + '.png')
+        photo = ImageTk.PhotoImage(image)
+        label = tk.Label(self, image=photo, bg='black')
+        label.image = photo  # keep a reference!
+        label.grid(row=1, columnspan = 10, sticky='e')
 
-        # label.pack()
-        # for j, i in enumerate(np.arange(0,101,10)):
-        #     button2 = tk.Button(self, text=str(i),
-        #                         command=lambda: controller.show_frame(PageTwo))
-        #     button2.grid(row = 1, column = j)
-        #
-        # for j, i in enumerate(np.arange(0,101,10)):
-        #     button2 = tk.Button(self, text=str(i),
-        #                         command=lambda: controller.show_frame(PageTwo))
-        #     button2.grid(row = 2, column = j)
-        #
 
-        # print(w.get())
+        scales, i = pleas_rate(self, ['a', 'b', 'a_and_b'])
+
+        next_button(self, scales, controller, PageTwo, i)
+
 
 class PageTwo(tk.Frame):
 
     def __init__(self, parent, controller):
         tk.Frame.__init__(self, parent)
 
-        image = Image.open('suspect_a.png')
+        image = Image.open('story_2' + '.png')
         photo = ImageTk.PhotoImage(image)
-
-        label = tk.Label(self, text="Page Two!!!", font=LARGE_FONT)
-        label.grid(row = 0, columnspan = 4)
-
-        w1 = tk.Scale(self, from_=0, to=100, orient='horizontal', resolution=10)
-        w1.grid(row = 1, columnspan = 3)
-
-        label = tk.Label(self, image = photo, bg = 'black')
+        label = tk.Label(self, image=photo, bg='black')
         label.image = photo  # keep a reference!
-        label.grid(row=1, column=4)
+        label.grid(row=0, columnspan=10, sticky='e')
 
-        w2 = tk.Scale(self, from_=0, to=100, orient='horizontal', resolution=10, bg = 'black', fg = 'white')
-        w2.grid(row = 2, columnspan = 4)
+        agree_with(self, controller, PageThree, n = 2)
 
-        w3 = tk.Scale(self, from_=0, to=100, orient='horizontal', resolution=10, bg = 'black', fg = 'white')
-        w3.grid(row = 3, columnspan = 4)
 
-        button1 = tk.Button(self, text="-->",
-                            command=lambda: print(w1.get(),w3.get()))
+class PageThree(tk.Frame):
 
-        button1.grid(row = 4, columnspan = 3)
+    def __init__(self, parent, controller):
+        tk.Frame.__init__(self, parent)
+
+        image = Image.open('rate' + '.png')
+        photo = ImageTk.PhotoImage(image)
+        label = tk.Label(self, image=photo, bg='black')
+        label.image = photo  # keep a reference!
+        label.grid(row=1, columnspan = 10, sticky='e')
+
+        scales, i = pleas_rate(self,['a', 'c', 'a_and_c'])
+
+        next_button(self, scales, controller, PageFour, i)
+
+
+class PageFour(tk.Frame):
+    def __init__(self, parent, controller):
+        tk.Frame.__init__(self, parent)
+
+        image = Image.open('story_3' + '.png')
+        photo = ImageTk.PhotoImage(image)
+        label = tk.Label(self, image=photo, bg='black')
+        label.image = photo  # keep a reference!
+        label.grid(row=0, columnspan=10, sticky='e')
+
+        agree_with(self, controller, PageFive, n = 2)
+
+class PageFive(tk.Frame):
+    def __init__(self, parent, controller):
+        tk.Frame.__init__(self, parent)
+
+        image = Image.open('please_rank' + '.png')
+        photo = ImageTk.PhotoImage(image)
+        label = tk.Label(self, image=photo, bg='black')
+        label.image = photo  # keep a reference!
+        label.grid(row=0, columnspan=4, sticky='e')
+
+        rankings = []
+        w,h = 401, 46
+        for i, photo in enumerate(['a','b', 'c', 'd']):
+            rankings.append(tk.Entry(self,  width = 5))
+            rankings[-1].grid(row=i + 1, column=2, pady=0, sticky='n')
+
+            image = Image.open('suspect_' + photo + '.png')
+            # w, h = image.size
+            image = image.resize((w, h), Image.ANTIALIAS)  # The (250, 250) is (height, width)
+            photo = ImageTk.PhotoImage(image)
+            label = tk.Label(self, image=photo, bg='black')
+            label.image = photo  # keep a reference!
+            label.grid(row=i + 1, column=3, sticky='e', pady=0)
+
+        for i, photo in enumerate(['a_and_b', 'a_and_c', 'a_and_d', 'b_and_c', 'b_and_d', 'c_and_d']):
+            rankings.append(tk.Entry(self, width = 5))
+            rankings[-1].grid(row=i + 1, column=0, padx=0, sticky='n')
+
+            image = Image.open('suspect_' + photo + '.png')
+            image = image.resize((w, h), Image.ANTIALIAS)
+            photo = ImageTk.PhotoImage(image)
+            label = tk.Label(self, image=photo, bg='black')
+            label.image = photo  # keep a reference!
+            label.grid(row=i + 1, column=1, sticky='s', padx=0)
+
+        button1 = tk.Button(self, text="<--", width=20,
+                            command=lambda: controller.show_frame(PageSix))
+        button1.grid(row=i + 2, column=1, columnspan=1)
+
+
+class PageSix(tk.Frame):
+    def __init__(self, parent, controller):
+        tk.Frame.__init__(self, parent)
+
+        image = Image.open('robots_finshed_talking' + '.png')
+        photo = ImageTk.PhotoImage(image)
+        label = tk.Label(self, image=photo, bg='black')
+        label.image = photo  # keep a reference!
+        label.grid(row=0, columnspan = 2, sticky='e')
+
+        image = Image.open('who_did_it' + '.png')
+        photo = ImageTk.PhotoImage(image)
+        label = tk.Label(self, image=photo, bg='black')
+        label.image = photo  # keep a reference!
+        label.grid(row=1, columnspan=2, sticky='e')
+
+        rankings = []
+        w,h = 401, 46
+        for i, photo in enumerate(['a','b', 'c', 'd']):
+            image = Image.open('suspect_' + photo + '.png')
+            image = image.resize((w, h), Image.ANTIALIAS)  # The (250, 250) is (height, width)
+            photo = ImageTk.PhotoImage(image)
+            label = tk.Button(self, image=photo, bg='black',command=lambda: controller.show_frame(StartPage))
+            label.image = photo  # keep a reference!
+            label.grid(row=i + 2, column=1, sticky='s', padx=0, pady = 5)
+
+        for i, photo in enumerate(['a_and_b', 'a_and_c', 'a_and_d', 'b_and_c', 'b_and_d', 'c_and_d']):
+            image = Image.open('suspect_' + photo + '.png')
+            image = image.resize((w, h), Image.ANTIALIAS)
+            photo = ImageTk.PhotoImage(image)
+            label = tk.Button(self, image=photo, bg='black',command=lambda: controller.show_frame(StartPage))
+            label.image = photo  # keep a reference!
+            label.grid(row=i + 2, column=0, sticky='s', padx=0, pady = 5)
 
 app = SeaofBTCapp()
 app.mainloop()
