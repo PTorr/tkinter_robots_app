@@ -222,7 +222,7 @@ class PageFive(tk.Frame):
         #                     command=lambda: controller.show_frame(PageSix))
         # button1.grid(row=i + 2, column=1, columnspan=1)
 
-        next_button(self, rankings, controller, PageFour, i+1)
+        next_button(self, rankings, controller, PageSix, i+1)
 
 
 class PageSix(tk.Frame):
@@ -305,3 +305,5 @@ app.mainloop()
 # relative positioning --> independent of the screen size --> better for full screen
 # https://www.python-course.eu/tkinter_layout_management.phpv --> see *.place()
 # todo: torr rememeber you need it to work not to be the pretiest.
+
+# todo: sound files!!!
