@@ -6,6 +6,7 @@ import tkinter as tk
 import numpy as np
 from PIL import Image, ImageTk
 import random
+from time import sleep
 
 LARGE_FONT = ("Verdana", 12)
 
@@ -21,7 +22,7 @@ class SeaofBTCapp(tk.Tk):
 
         self.frames = {}
 
-        for F in (StartPage, PageOne, PageTwo, PageThree, PageFour, PageFive, PageSix):
+        for F in (StartPage, PageOne, PageTwo, PageThree, PageFour, PageFive, PageSix,PageSeven, EndPage):
             frame = F(container, self)
 
             self.frames[F] = frame
@@ -42,23 +43,19 @@ class StartPage(tk.Frame):
         label = tk.Label(self, text="Start Page", font=LARGE_FONT)
         label.pack(pady=10, padx=10)
 
+        for i, F in enumerate((StartPage, PageOne, PageTwo, PageThree, PageFour, PageFive, PageSix, PageSeven, EndPage)):
+            b = tk.Button(self, text='visit Page %d' % i,command=lambda f=F: controller.show_frame(f))
+            b.pack()
 
-        b1 = tk.Button(self, text='visit Page 1',command=lambda: controller.show_frame(PageOne))
-        b1.pack()
-        b2 = tk.Button(self, text='visit Page 2', command=lambda: controller.show_frame(PageTwo))
-        b2.pack()
-        b3 = tk.Button(self, text='visit Page 3', command=lambda: controller.show_frame(PageThree))
-        b3.pack()
-        b4 = tk.Button(self, text='visit Page 4', command=lambda: controller.show_frame(PageFour))
-        b4.pack()
-        b5 = tk.Button(self, text='visit Page 5', command=lambda: controller.show_frame(PageFive))
-        b5.pack()
-        b6 = tk.Button(self, text='visit Page 6', command=lambda: controller.show_frame(PageSix))
-        b6.pack()
+def transition(widget_values, controller, page):
+    if widget_values != None:
+        try: # when we have ratings (in a dict)
+            for k, v in widget_values.items():
+                print(k,v.get())
+        except:
+            for v in widget_values:
+                print(v)
 
-def transition(scales, controller, page):
-    if scales != None:
-        print(scales[0].get(), scales[1].get(), scales[2].get())
     controller.show_frame(page)
 
 def agree_with(self1, controller, page, n = 2):
@@ -80,7 +77,7 @@ def agree_with(self1, controller, page, n = 2):
     photo = ImageTk.PhotoImage(image)
     clr = '#%02x%02x%02x' % (255, 80, 80)
     red_button = tk.Button(self1, image=photo, bg = clr,
-                           command=lambda: controller.show_frame(page))
+                           command=lambda: transition(['red'], controller, page))
     red_button.image = photo
     red_button.grid(row=n + 2, column=1, pady = 30)
 
@@ -88,7 +85,7 @@ def agree_with(self1, controller, page, n = 2):
     photo = ImageTk.PhotoImage(image)
     clr = '#%02x%02x%02x' % (47, 85, 151)
     blue_button = tk.Button(self1, image=photo, bg = clr,
-                            command=lambda: controller.show_frame(page))
+                            command=lambda: transition(['blue'], controller, page))
     blue_button.image = photo
     blue_button.grid(row=n + 2, column=8, pady = 30)
 
@@ -98,15 +95,14 @@ def pleas_rate(self, suspects):
     ### randomize the order that the rating options are presented
     random.shuffle(suspects)
 
-    scales = []
+    scales = {}
     # todo: change scales dictionary with the suspects as keys --> to know which prob is which (when the order is random)
 
     for i, photo in enumerate(suspects):
-        scales.append(
-            tk.Scale(self, from_=0, to=100, orient='horizontal', resolution=10, length=350, bg='black', fg='white'))
+        scales[photo] = tk.Scale(self, from_=0, to=100, orient='horizontal', resolution=10, length=350, bg='black', fg='white')
 
-        scales[-1].config(highlightthickness=0)
-        scales[-1].grid(row=i + 2, column=0, columnspan=9, padx=10, pady=20, sticky='n')
+        scales[photo].config(highlightthickness=0)
+        scales[photo].grid(row=i + 2, column=0, columnspan=9, padx=10, pady=20, sticky='n')
 
         image = Image.open('suspect_' + photo + '.png')
         photo = ImageTk.PhotoImage(image)
@@ -118,7 +114,7 @@ def pleas_rate(self, suspects):
 
 def next_button(self, scales, controller, page, i):
     button1 = tk.Button(self, text="<--", width=20,
-                        command=lambda: transition(scales, controller,page))
+                        command=lambda: transition(scales, controller, page))
     button1.grid(row=i + 1, column=1, columnspan=2)
 
 
@@ -197,11 +193,11 @@ class PageFive(tk.Frame):
         label.image = photo  # keep a reference!
         label.grid(row=0, columnspan=4, sticky='e')
 
-        rankings = []
+        rankings = {}
         w,h = 401, 46
         for i, photo in enumerate(['a','b', 'c', 'd']):
-            rankings.append(tk.Entry(self,  width = 5))
-            rankings[-1].grid(row=i + 1, column=2, pady=0, sticky='n')
+            rankings[photo] = tk.Entry(self,  width = 5)
+            rankings[photo].grid(row=i + 1, column=2, pady=0, sticky='n')
 
             image = Image.open('suspect_' + photo + '.png')
             # w, h = image.size
@@ -212,8 +208,8 @@ class PageFive(tk.Frame):
             label.grid(row=i + 1, column=3, sticky='e', pady=0)
 
         for i, photo in enumerate(['a_and_b', 'a_and_c', 'a_and_d', 'b_and_c', 'b_and_d', 'c_and_d']):
-            rankings.append(tk.Entry(self, width = 5))
-            rankings[-1].grid(row=i + 1, column=0, padx=0, sticky='n')
+            rankings[photo] = tk.Entry(self, width=5)
+            rankings[photo].grid(row=i + 1, column=0, pady=0, sticky='n')
 
             image = Image.open('suspect_' + photo + '.png')
             image = image.resize((w, h), Image.ANTIALIAS)
@@ -222,9 +218,11 @@ class PageFive(tk.Frame):
             label.image = photo  # keep a reference!
             label.grid(row=i + 1, column=1, sticky='s', padx=0)
 
-        button1 = tk.Button(self, text="<--", width=20,
-                            command=lambda: controller.show_frame(PageSix))
-        button1.grid(row=i + 2, column=1, columnspan=1)
+        # button1 = tk.Button(self, text="<--", width=20,
+        #                     command=lambda: controller.show_frame(PageSix))
+        # button1.grid(row=i + 2, column=1, columnspan=1)
+
+        next_button(self, rankings, controller, PageFour, i+1)
 
 
 class PageSix(tk.Frame):
@@ -243,23 +241,67 @@ class PageSix(tk.Frame):
         label.image = photo  # keep a reference!
         label.grid(row=1, columnspan=2, sticky='e')
 
-        rankings = []
+        rankings = {}
         w,h = 401, 46
-        for i, photo in enumerate(['a','b', 'c', 'd']):
-            image = Image.open('suspect_' + photo + '.png')
+        for i, p in enumerate(['a','b', 'c', 'd']):
+            image = Image.open('suspect_' + p + '.png')
             image = image.resize((w, h), Image.ANTIALIAS)  # The (250, 250) is (height, width)
             photo = ImageTk.PhotoImage(image)
-            label = tk.Button(self, image=photo, bg='black',command=lambda: controller.show_frame(StartPage))
-            label.image = photo  # keep a reference!
-            label.grid(row=i + 2, column=1, sticky='s', padx=0, pady = 5)
+            rankings[p] = tk.Button(self, image=photo, bg='black',command=lambda p=p: transition([p], controller, PageSeven))
+            rankings[p].image = photo  # keep a reference!
+            rankings[p].grid(row=i + 2, column=1, sticky='s', padx=0, pady = 5)
 
-        for i, photo in enumerate(['a_and_b', 'a_and_c', 'a_and_d', 'b_and_c', 'b_and_d', 'c_and_d']):
-            image = Image.open('suspect_' + photo + '.png')
+        for i, p in enumerate(['a_and_b', 'a_and_c', 'a_and_d', 'b_and_c', 'b_and_d', 'c_and_d']):
+            image = Image.open('suspect_' + p + '.png')
             image = image.resize((w, h), Image.ANTIALIAS)
             photo = ImageTk.PhotoImage(image)
-            label = tk.Button(self, image=photo, bg='black',command=lambda: controller.show_frame(StartPage))
-            label.image = photo  # keep a reference!
-            label.grid(row=i + 2, column=0, sticky='s', padx=0, pady = 5)
+            rankings[p] = tk.Button(self, image=photo, bg='black',command=lambda p=p: transition([p], controller, PageSeven))
+            rankings[p].image = photo  # keep a reference!
+            rankings[p].grid(row=i + 2, column=0, sticky='s', padx=0, pady = 5)
+
+class PageSeven(tk.Frame):
+    def __init__(self, parent, controller):
+        tk.Frame.__init__(self, parent)
+        n = -1
+        image = Image.open('hire_detectivev' + '.png')
+        photo = ImageTk.PhotoImage(image)
+        label = tk.Label(self, image=photo, bg='black')
+        label.image = photo  # keep a reference!
+        label.grid(row=n + 1, columnspan=10, sticky='e', pady=10)
+
+        image = Image.open('red' + '.png')
+        photo = ImageTk.PhotoImage(image)
+        clr = '#%02x%02x%02x' % (255, 80, 80)
+        red_button = tk.Button(self, image=photo, bg=clr,
+                               command=lambda: transition(['red'], controller, EndPage))
+        red_button.image = photo
+        red_button.grid(row=n + 2, column=1, pady=30)
+
+        image = Image.open('blue' + '.png')
+        photo = ImageTk.PhotoImage(image)
+        clr = '#%02x%02x%02x' % (47, 85, 151)
+        blue_button = tk.Button(self, image=photo, bg=clr,
+                                command=lambda: transition(['blue'], controller, EndPage))
+        blue_button.image = photo
+        blue_button.grid(row=n + 2, column=8, pady=30)
+
+
+class EndPage(tk.Frame):
+    def __init__(self, parent, controller):
+        tk.Frame.__init__(self, parent)
+
+        image = Image.open('the_end' + '.png')
+        photo = ImageTk.PhotoImage(image)
+        label = tk.Label(self, image=photo, bg='black')
+        label.image = photo  # keep a reference!
+        label.grid(row=0, sticky='e', pady=10)
+
+        tk.Button(self, text="Close", width=20, height=10, command=self.quit).grid(row=1, pady=10)
+
 
 app = SeaofBTCapp()
 app.mainloop()
+
+# relative positioning --> independent of the screen size --> better for full screen
+# https://www.python-course.eu/tkinter_layout_management.phpv --> see *.place()
+# todo: torr rememeber you need it to work not to be the pretiest.
