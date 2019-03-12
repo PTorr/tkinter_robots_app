@@ -1,9 +1,10 @@
 # The code for changing pages was derived from: http://stackoverflow.com/questions/7546050/switch-between-two-frames-in-tkinter
 # License: http://creativecommons.org/licenses/by-sa/3.0/
 
-import tkinter as tk
-
+# import tkinter as tk # python 3
+import Tkinter as tk
 import numpy as np
+
 from PIL import Image, ImageTk
 import random
 from time import sleep
@@ -43,8 +44,8 @@ class StartPage(tk.Frame):
         label = tk.Label(self, text="Start Page", font=LARGE_FONT)
         label.pack(pady=10, padx=10)
 
-        for i, F in enumerate((StartPage, PageOne, PageTwo, PageThree, PageFour, PageFive, PageSix, PageSeven, EndPage)):
-            b = tk.Button(self, text='visit Page %d' % i,command=lambda f=F: controller.show_frame(f))
+        for i, F in enumerate((PageOne, PageTwo, PageThree, PageFour, PageFive, PageSix, PageSeven, EndPage)):
+            b = tk.Button(self, text='visit Page %d' % (i + 1),command=lambda f=F: controller.show_frame(f))
             b.pack()
 
 def transition(widget_values, controller, page):
@@ -96,7 +97,6 @@ def pleas_rate(self, suspects):
     random.shuffle(suspects)
 
     scales = {}
-    # todo: change scales dictionary with the suspects as keys --> to know which prob is which (when the order is random)
 
     for i, photo in enumerate(suspects):
         scales[photo] = tk.Scale(self, from_=0, to=100, orient='horizontal', resolution=10, length=350, bg='black', fg='white')
