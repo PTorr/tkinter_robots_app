@@ -1,8 +1,8 @@
 # The code for changing pages was derived from: http://stackoverflow.com/questions/7546050/switch-between-two-frames-in-tkinter
 # License: http://creativecommons.org/licenses/by-sa/3.0/
 
-# import tkinter as tk # python 3
-import Tkinter as tk
+import tkinter as tk # python 3
+# import Tkinter as tk
 import numpy as np
 
 from PIL import Image, ImageTk
@@ -23,7 +23,7 @@ class SeaofBTCapp(tk.Tk):
 
         self.frames = {}
 
-        for F in (StartPage, PageOne, PageTwo, PageThree, PageFour, PageFive, PageSix,PageSeven, EndPage):
+        for F in (StartPage, OpeningPage, PageOne, PageTwo, PageThree, PageFour, PageFive, PageSix,PageSeven, EndPage):
             frame = F(container, self)
 
             self.frames[F] = frame
@@ -44,7 +44,7 @@ class StartPage(tk.Frame):
         label = tk.Label(self, text="Start Page", font=LARGE_FONT)
         label.pack(pady=10, padx=10)
 
-        for i, F in enumerate((PageOne, PageTwo, PageThree, PageFour, PageFive, PageSix, PageSeven, EndPage)):
+        for i, F in enumerate((OpeningPage, PageOne, PageTwo, PageThree, PageFour, PageFive, PageSix, PageSeven, EndPage)):
             b = tk.Button(self, text='visit Page %d' % (i + 1),command=lambda f=F: controller.show_frame(f))
             b.pack()
 
@@ -290,14 +290,40 @@ class EndPage(tk.Frame):
     def __init__(self, parent, controller):
         tk.Frame.__init__(self, parent)
 
+
         image = Image.open('the_end' + '.png')
         photo = ImageTk.PhotoImage(image)
         label = tk.Label(self, image=photo, bg='black')
         label.image = photo  # keep a reference!
         label.grid(row=0, sticky='e', pady=10)
 
-        tk.Button(self, text="Close", width=20, height=10, command=self.quit).grid(row=1, pady=10)
+        clr = '#%02x%02x%02x' % (146, 208, 80)
+        image = Image.open('end_button' + '.png')
+        photo = ImageTk.PhotoImage(image)
 
+        b = tk.Button(self, image=photo, bg=clr, command=self.quit)
+        b.grid(row=1, pady=10)
+        b.image = photo
+
+
+class OpeningPage(tk.Frame):
+    def __init__(self, parent, controller):
+        tk.Frame.__init__(self, parent)
+
+
+        image = Image.open('begin_text' + '.png')
+        photo = ImageTk.PhotoImage(image)
+        label = tk.Label(self, image=photo, bg='black')
+        label.image = photo  # keep a reference!
+        label.grid(row=0, sticky='e', pady=10)
+
+        clr = '#%02x%02x%02x' % (146, 208, 80)
+        image = Image.open('begin_button' + '.png')
+        photo = ImageTk.PhotoImage(image)
+
+        b = tk.Button(self, image=photo, bg=clr, command=lambda: transition(None, controller, PageOne))
+        b.grid(row=1, pady=10)
+        b.image = photo
 
 app = SeaofBTCapp()
 app.mainloop()
